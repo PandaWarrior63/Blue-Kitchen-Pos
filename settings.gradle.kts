@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Ecommerce"
+rootProject.name = "Blue Pos"
 include(":app")
  

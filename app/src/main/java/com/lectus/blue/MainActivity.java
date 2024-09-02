@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.lectus.blue.ui.TableListFragment;
 import com.lectus.blue.ui.create_product.CreateProductFragment;
 import com.lectus.blue.ui.login.LoginFragment;
 import com.lectus.blue.ui.products.ProductsFragment;
@@ -45,6 +46,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .beginTransaction()
                     .add(R.id.fragment_container, new LoginFragment())
                     .commit();
+        }
+        else {
+            loadFragment(new TableListFragment());
         }
 //        // Load the default fragment
 //        if (savedInstanceState == null) {
@@ -91,6 +95,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void openDrawer() {
-        drawerLayout.openDrawer(GravityCompat.START);
+        //drawerLayout.openDrawer(GravityCompat.START);
     }
 }

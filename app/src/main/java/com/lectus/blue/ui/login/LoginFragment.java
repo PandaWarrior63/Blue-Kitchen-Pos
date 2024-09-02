@@ -12,6 +12,7 @@ import com.android.volley.AuthFailureError;
 import com.lectus.blue.Config.URL;
 import com.lectus.blue.MainActivity;
 import com.lectus.blue.R;
+import com.lectus.blue.ui.TableListFragment;
 import com.lectus.blue.ui.products.ProductsFragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -120,7 +121,7 @@ public class LoginFragment extends Fragment {
                     JSONObject tokenObj = jObj.getJSONObject("message");
                     String token = tokenObj.getString("token");
                     Toast.makeText(requireContext(), "You successfully logged in", Toast.LENGTH_SHORT).show();
-                    ((MainActivity) requireActivity()).loadFragment(new ProductsFragment());
+                    ((MainActivity) requireActivity()).loadFragment(new TableListFragment());
                 } catch (JSONException e) {
                     // JSON error
                     Toast.makeText(requireContext(), "Something went wrong. Please try again.", Toast.LENGTH_SHORT).show();
