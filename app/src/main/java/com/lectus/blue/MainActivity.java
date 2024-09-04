@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -20,16 +21,18 @@ import com.lectus.blue.ui.create_product.CreateProductFragment;
 import com.lectus.blue.ui.login.LoginFragment;
 import com.lectus.blue.ui.products.ProductsFragment;
 import com.google.android.material.navigation.NavigationView;
+import com.lectus.blue.utils.SessionManager;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout drawerLayout;
-
+    private SessionManager session;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+        session = new SessionManager(this);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -50,6 +53,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else {
             loadFragment(new TableListFragment());
         }
+
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Handle the back button event
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                if (fragmentManager.getBackStackEntryCount() > 0) {
+                    fragmentManager.popBackStack(); // Pop the fragment from the back stack
+                } else {
+                    finish(); // Otherwise, finish the activity
+                }
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
 //        // Load the default fragment
 //        if (savedInstanceState == null) {
 //            loadFragment(new ProductsFragment());
@@ -71,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, fragment);
+        fragmentTransaction.addToBackStack(null); // Add this transaction to the back stac
         fragmentTransaction.commit();
 
         // Set the active drawer item

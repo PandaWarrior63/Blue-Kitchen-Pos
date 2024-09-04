@@ -35,12 +35,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.lectus.blue.App;
+import com.lectus.blue.utils.SessionManager;
 
 /**
  * Fragment representing the login screen for Shrine.
  */
 public class LoginFragment extends Fragment {
     private ProgressDialog pDialog;
+    private SessionManager session;
     private static final String TAG = LoginFragment.class.getSimpleName();
 
     @Override
@@ -55,6 +57,10 @@ public class LoginFragment extends Fragment {
         MaterialButton nextButton = view.findViewById(R.id.next_button);
         pDialog = new ProgressDialog(requireContext());
         pDialog.setCancelable(false);
+
+        //Set Login Part
+        session = new SessionManager(requireContext());
+
         // Set an error if the password is less than 8 characters.
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,6 +127,7 @@ public class LoginFragment extends Fragment {
                     JSONObject tokenObj = jObj.getJSONObject("message");
                     String token = tokenObj.getString("token");
                     Toast.makeText(requireContext(), "You successfully logged in", Toast.LENGTH_SHORT).show();
+                    session.setKeyToken(token);
                     ((MainActivity) requireActivity()).loadFragment(new TableListFragment());
                 } catch (JSONException e) {
                     // JSON error

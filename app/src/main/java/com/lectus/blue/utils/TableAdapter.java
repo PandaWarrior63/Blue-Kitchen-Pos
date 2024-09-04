@@ -1,4 +1,4 @@
-package  com.lectus.blue.adapter;
+package com.lectus.blue.utils;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +25,21 @@ public class TableAdapter extends RecyclerView.Adapter<TableAdapter.CardViewHold
         this.cardItemList = cardItemList;
         this.onCardClickListener = onCardClickListener;
     }
-
+    public void resetTableList(){
+        if (cardItemList!=null) {
+            cardItemList.clear();
+            notifyDataSetChanged();
+        }
+    }
+    public void addTable(TableItem item)
+    {
+        cardItemList.add(item);
+        notifyItemInserted(cardItemList.size() - 1);
+    }
+    public void setTableList(List<TableItem> list)
+    {
+        cardItemList = list;
+    }
     @NonNull
     @Override
     public CardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -36,8 +50,9 @@ public class TableAdapter extends RecyclerView.Adapter<TableAdapter.CardViewHold
     @Override
     public void onBindViewHolder(@NonNull CardViewHolder holder, int position) {
         TableItem cardItem = cardItemList.get(position);
-        holder.cardTitle.setText(cardItem.getTitle());
+        holder.cardTitle.setText(cardItem.getName());
         holder.cardDescription.setText(cardItem.getDescription());
+        holder.seatInfo.setText(cardItem.getOccupied_seats()+"/"+cardItem.getSeats());
         holder.cardBack.setCardBackgroundColor(Color.parseColor(cardItem.getBackground()));
         holder.cardBack.setRadius(30);
         holder.cardBack.setOnClickListener(v -> {
@@ -53,7 +68,7 @@ public class TableAdapter extends RecyclerView.Adapter<TableAdapter.CardViewHold
     }
 
     public static class CardViewHolder extends RecyclerView.ViewHolder {
-        TextView cardTitle, cardDescription;
+        TextView cardTitle, cardDescription,seatInfo;
         MaterialCardView cardBack;
 
         public CardViewHolder(@NonNull View itemView) {
@@ -61,6 +76,7 @@ public class TableAdapter extends RecyclerView.Adapter<TableAdapter.CardViewHold
             cardTitle = itemView.findViewById(R.id.cardTitle);
             cardDescription = itemView.findViewById(R.id.cardDescription);
             cardBack = itemView.findViewById(R.id.cardBack);
+            seatInfo = itemView.findViewById(R.id.seatInfo);
         }
     }
 }

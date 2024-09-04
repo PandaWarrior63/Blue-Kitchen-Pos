@@ -22,18 +22,25 @@
             android:minHeight="30dp"
             android:text="Card Title"
             android:textAppearance="?attr/textAppearanceHeadline6" />
-
+        <TextView
+            android:id="@+id/seatInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|clip_vertical"
+            android:layout_marginTop="30dp"
+            android:text="1/4"
+            android:textAppearance="?attr/textAppearanceBody2" />
         <TextView
             android:id="@+id/cardDescription"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_gravity="bottom|clip_vertical"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="60dp"
             android:text="Description"
             android:textAppearance="?attr/textAppearanceBody1" />
+
     </RelativeLayout>
 
 </com.google.android.material.card.MaterialCardView>

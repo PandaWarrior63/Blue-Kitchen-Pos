@@ -8,18 +8,38 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.google.android.material.tabs.TabLayout;
+import com.lectus.blue.App;
+import com.lectus.blue.Config.URL;
+import com.lectus.blue.MainActivity;
 import com.lectus.blue.R;
-import com.lectus.blue.adapter.TableAdapter;
+import com.lectus.blue.model.FloorItem;
+import com.lectus.blue.ui.create_product.CreateProductFragment;
+import com.lectus.blue.ui.login.LoginFragment;
+import com.lectus.blue.utils.SessionManager;
+import com.lectus.blue.utils.TableAdapter;
 import com.lectus.blue.model.TableItem;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,18 +50,39 @@ public class TableListFragment extends Fragment implements TableAdapter.OnCardCl
 
     private RecyclerView recyclerView;
     private TableAdapter tableAdapter;
+    private SessionManager session;
+    String tag_string_init = "req_init";
     private TabLayout tabLayout;
+    private static final String TAG = LoginFragment.class.getSimpleName();
+    List<FloorItem> floorList = new ArrayList<>();
+    List<TableItem> tableList = new ArrayList<>();
+
+    private Handler handler = new Handler();
+    private Runnable runnable;
+    private static final int INTERVAL = 10000; // 10 seconds
+    private boolean isSync  = false;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_table_list, container, false);
         recyclerView = view.findViewById(R.id.recyclerView);
 
+        session = new SessionManager(requireContext());
+
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3)); // 2 columns
+        tableAdapter = new TableAdapter(getCardItems(),this);
+        recyclerView.setAdapter(tableAdapter);
+
+        if (floorList.size()==0)
+            getRestaurantInitData();
+        else
+            setupFloors();
         tabLayout = view.findViewById(R.id.scrollable_tab_layout);
-        addTab("Ground Floor");
-        addTab("First Floor");
-        addTab("Take Away");
-        addTab("Delivery");
+//        addTab("Ground Floor");
+//        addTab("First Floor");
+//        addTab("Take Away");
+//        addTab("Delivery");
 
         // Set TabSelectedListener to handle click events
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -49,6 +90,7 @@ public class TableListFragment extends Fragment implements TableAdapter.OnCardCl
             public void onTabSelected(@NonNull TabLayout.Tab tab) {
                 // Handle tab selected event
                 Toast.makeText(requireContext(), "Selected: " + tab.getText(), Toast.LENGTH_SHORT).show();
+                displayTables();
             }
 
             @Override
@@ -64,11 +106,179 @@ public class TableListFragment extends Fragment implements TableAdapter.OnCardCl
             }
         });
         // Set up the RecyclerView
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3)); // 2 columns
-        tableAdapter = new TableAdapter(getCardItems(),this);
-        recyclerView.setAdapter(tableAdapter);
+
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                // Your Volley request here
+                StringRequest strReq = new StringRequest(Request.Method.POST,
+                        URL.URL_RESTAURANT_TABLE_DATA, new Response.Listener<String>() {
+
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d(TAG, "Tables Response: " + response.toString());
+                        isSync = false;
+
+                        try {
+                            JSONObject jObj = new JSONObject(response);
+                            JSONObject dataObj = jObj.getJSONObject("message");
+                            JSONArray tablesArray = dataObj.getJSONArray("tables");
+                            setLiveTables(tablesArray);
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+
+
+                        //hideDialog();
+
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                        Log.e(TAG, "Login Error: " + error.getMessage());
+                        Toast.makeText(requireContext(),
+                                error.getMessage()==null?"NULL": error.getMessage(), Toast.LENGTH_LONG).show();
+                        isSync = false;
+                        //hideDialog();
+                    }
+                }) {
+                    @Override
+                    protected Map<String, String> getParams() {
+                        // Posting parameters to login url
+                        Map<String, String> params = new HashMap<String, String>();
+                        //params.put("tag", "login");
+                        params.put("pos_opening_entry", "POS-OPE-2024-00017");
+
+                        return params;
+                    }
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String,String> params = new HashMap<>();
+                        //..add other headers
+                        params.put("Accept", "'application/json");
+                        //params.put("Content-Type", "application/x-www-form-urlencoded");
+                        params.put("Authorization", "Bearer " + session.getKeyToken());
+                        return params;
+                    }
+                };
+
+                // Adding request to request queue
+                if (!isSync)
+                    App.getInstance().addToRequestQueue(strReq, tag_string_init);
+                isSync = true;
+                // Schedule the next execution
+                handler.postDelayed(this, INTERVAL);
+            }
+        };
+
+        // Start the periodic execution
+        handler.post(runnable);
 
         return view;
+    }
+    private void setupFloors(){
+        for(FloorItem item:floorList){
+            addTab(item.getFloor_name());
+        }
+        displayTables();
+    }
+    private void displayTables(){
+        TabLayout.Tab tab = tabLayout.getTabAt(tabLayout.getSelectedTabPosition());
+        String floorName = tab.getText().toString();
+        tableAdapter.resetTableList();
+        for(TableItem item:tableList){
+            if (item.getFloor().equals(floorName))
+                tableAdapter.addTable(item);
+        }
+    }
+    private void setLiveTables(JSONArray tableJsonArry){
+        try {
+            for(int i=0;i<tableJsonArry.length();i++){
+                JSONObject tableObj = tableJsonArry.getJSONObject(i);
+                for (TableItem table:tableList) {
+                    if (table.getTable_name().equals(tableObj.getString("table_name")))
+                    {
+                        JSONArray orders = tableObj.getJSONArray("orders");
+                        if (orders.length()!=0) {
+
+                            table.setBackground("#FF6666");
+                            String temp = String.valueOf(orders.getJSONObject(0).getJSONArray("items").length());
+                            table.setDescription(temp+" Order Items");
+                        }
+                        else
+                            table.setBackground("#DCDCDC");
+                    }
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        tableAdapter.notifyDataSetChanged();
+    }
+    private void getRestaurantInitData(){
+        Toast.makeText(requireContext(),session.getKeyToken(),Toast.LENGTH_SHORT).show();
+        StringRequest strReq = new StringRequest(Request.Method.POST,
+                URL.URL_RESTAURANT_INIT_DATA, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                Log.d(TAG, "Login Response: " + response.toString());
+                //hideDialog();
+
+                try {
+                    JSONObject jObj = new JSONObject(response);
+
+                    JSONObject dataObj = jObj.getJSONObject("message");
+                    JSONArray jsonArray = dataObj.getJSONArray("floors");
+
+                    for(int i=0;i<jsonArray.length();i++)
+                    {
+                        FloorItem floorItem = new FloorItem(jsonArray.getJSONObject(i));
+                        floorList.add(floorItem);
+                    }
+                    jsonArray = dataObj.getJSONArray("tables");
+                    for(int i=0;i<jsonArray.length();i++){
+                        TableItem tableItem = new TableItem(jsonArray.getJSONObject(i));
+                        tableList.add(tableItem);
+                    }
+                    setupFloors();
+                    //Toast.makeText(requireContext(), temp, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    // JSON error
+                    Toast.makeText(requireContext(), "Something went wrong. Please try again.", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+                Log.e(TAG, "Login Error: " + error.getMessage());
+                Toast.makeText(requireContext(),
+                        error.getMessage()==null?"NULL": error.getMessage(), Toast.LENGTH_LONG).show();
+                //hideDialog();
+            }
+        }) {
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<>();
+                //..add other headers
+                params.put("Accept", "'application/json");
+                //params.put("Content-Type", "application/x-www-form-urlencoded");
+                params.put("Authorization", "Bearer " + session.getKeyToken());
+                return params;
+            }
+        };
+
+        // Adding request to request queue
+        App.getInstance().addToRequestQueue(strReq, tag_string_init);
+
     }
     private void addTab(String tabTitle) {
         TabLayout.Tab tab = tabLayout.newTab();
@@ -91,6 +301,7 @@ public class TableListFragment extends Fragment implements TableAdapter.OnCardCl
 
     @Override
     public void onCardClick(int position, TableItem cardItem) {
-        Toast.makeText(requireContext(), cardItem.getTitle(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), cardItem.getName(), Toast.LENGTH_SHORT).show();
+        ((MainActivity) requireActivity()).loadFragment(new CreateProductFragment());
     }
 }
