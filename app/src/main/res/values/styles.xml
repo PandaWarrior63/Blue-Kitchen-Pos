@@ -52,4 +52,9 @@
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
+    <style name="TextAppearance.Blue.HeadTitle" parent="TextAppearance.MaterialComponents.Headline5">
+        <item name="textAllCaps">true</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+    </style>
 </resources>

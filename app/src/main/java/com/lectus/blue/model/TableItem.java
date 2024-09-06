@@ -1,7 +1,11 @@
 package com.lectus.blue.model;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TableItem {
     private String name;
@@ -13,6 +17,7 @@ public class TableItem {
     private String table_name;
     private String status;
 
+    private List<TableOrderItem> orderList = new ArrayList<>();
 
     public TableItem(String name, String description) {
         this.name = name;
@@ -100,5 +105,33 @@ public class TableItem {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List<TableOrderItem> getOrderList() {
+        return orderList;
+    }
+
+    public void setOrderList(List<TableOrderItem> orderList) {
+        this.orderList = orderList;
+    }
+    public void addTableOrderItem(TableOrderItem tableOrderItem){
+        this.orderList.add(tableOrderItem);
+    }
+
+    public void setOrderList(JSONArray orderItems) {
+        if (!orderList.isEmpty())
+            orderList.clear();
+        for(int i=0;i<orderItems.length();i++)
+        {
+            try {
+                JSONObject object = orderItems.getJSONObject(i);
+                TableOrderItem item = new TableOrderItem(object);
+                orderList.add(item);
+
+            } catch (JSONException e) {
+                //throw new RuntimeException(e);
+            }
+
+        }
     }
 }

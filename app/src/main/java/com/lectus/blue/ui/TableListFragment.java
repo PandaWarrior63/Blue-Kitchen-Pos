@@ -74,15 +74,9 @@ public class TableListFragment extends Fragment implements TableAdapter.OnCardCl
         tableAdapter = new TableAdapter(getCardItems(),this);
         recyclerView.setAdapter(tableAdapter);
 
-        if (floorList.size()==0)
-            getRestaurantInitData();
-        else
-            setupFloors();
+
         tabLayout = view.findViewById(R.id.scrollable_tab_layout);
-//        addTab("Ground Floor");
-//        addTab("First Floor");
-//        addTab("Take Away");
-//        addTab("Delivery");
+
 
         // Set TabSelectedListener to handle click events
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -177,6 +171,10 @@ public class TableListFragment extends Fragment implements TableAdapter.OnCardCl
         // Start the periodic execution
         handler.post(runnable);
 
+        if (floorList.size()==0)
+            getRestaurantInitData();
+        else
+            setupFloors();
         return view;
     }
     private void setupFloors(){
@@ -203,10 +201,11 @@ public class TableListFragment extends Fragment implements TableAdapter.OnCardCl
                     {
                         JSONArray orders = tableObj.getJSONArray("orders");
                         if (orders.length()!=0) {
-
+                            JSONArray orderItems = orders.getJSONObject(0).getJSONArray("items");
                             table.setBackground("#FF6666");
-                            String temp = String.valueOf(orders.getJSONObject(0).getJSONArray("items").length());
+                            String temp = String.valueOf(orderItems.length());
                             table.setDescription(temp+" Order Items");
+                            table.setOrderList(orderItems);
                         }
                         else
                             table.setBackground("#DCDCDC");
@@ -302,6 +301,6 @@ public class TableListFragment extends Fragment implements TableAdapter.OnCardCl
     @Override
     public void onCardClick(int position, TableItem cardItem) {
         Toast.makeText(requireContext(), cardItem.getName(), Toast.LENGTH_SHORT).show();
-        ((MainActivity) requireActivity()).loadFragment(new CreateProductFragment());
+        ((MainActivity) requireActivity()).loadFragment(new TableOrderListFragment(cardItem));
     }
 }

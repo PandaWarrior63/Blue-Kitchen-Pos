@@ -5,4 +5,5 @@ public class URL {
     public static String URL_LOGIN = base_URL+"sopos.api.v1.auth.login";
     public static String URL_RESTAURANT_INIT_DATA = base_URL+"sopos.api.v1.restaurant.data.init_data";
     public static String URL_RESTAURANT_TABLE_DATA = base_URL+"sopos.api.v1.restaurant.data.tables";
+    public static String URL_RESTAURANT_UPDATE_QUANTITY = base_URL+"sopos.api.v1.restaurant.order.update_quantity_app";
 }
