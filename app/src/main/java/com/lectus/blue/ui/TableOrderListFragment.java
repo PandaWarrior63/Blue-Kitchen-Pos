@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lectus.blue.MainActivity;
@@ -74,6 +75,8 @@ public class TableOrderListFragment extends Fragment implements  TableOrderListA
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
+            TextView textView = view.findViewById(R.id.table_name);
+            textView.setText(tableItem.getTable_name());
             //recyclerView.setAdapter(new TableOrderListAdapter(PlaceholderContent.ITEMS));
             recyclerView.setAdapter(new TableOrderListAdapter(tableItem.getOrderList(),this));
             Button backButton = view.findViewById(R.id.back_button);
@@ -86,7 +89,7 @@ public class TableOrderListFragment extends Fragment implements  TableOrderListA
 
     @Override
     public void onRemoveButtonClick(int position, TableOrderItem orderItem) {
-        Toast.makeText(requireContext(), orderItem.getItem_code(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(requireContext(), orderItem.getItem_code(), Toast.LENGTH_SHORT).show();
         RemoveItemFragment removeDialogFragment = new RemoveItemFragment(orderItem);
         removeDialogFragment.show(getChildFragmentManager(),"CustomDialog");
     }

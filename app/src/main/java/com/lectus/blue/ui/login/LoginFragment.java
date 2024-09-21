@@ -12,6 +12,8 @@ import com.android.volley.AuthFailureError;
 import com.lectus.blue.Config.URL;
 import com.lectus.blue.MainActivity;
 import com.lectus.blue.R;
+import com.lectus.blue.ui.PosSelectionFragment;
+import com.lectus.blue.ui.RemoveItemFragment;
 import com.lectus.blue.ui.TableListFragment;
 import com.lectus.blue.ui.products.ProductsFragment;
 import com.google.android.material.button.MaterialButton;
@@ -55,9 +57,9 @@ public class LoginFragment extends Fragment {
         final TextInputEditText passwordEditText = view.findViewById(R.id.password);
         final TextInputEditText usernameEditText = view.findViewById(R.id.username);
         MaterialButton nextButton = view.findViewById(R.id.next_button);
+
         pDialog = new ProgressDialog(requireContext());
         pDialog.setCancelable(false);
-
         //Set Login Part
         session = new SessionManager(requireContext());
 
@@ -128,7 +130,9 @@ public class LoginFragment extends Fragment {
                     String token = tokenObj.getString("token");
                     Toast.makeText(requireContext(), "You successfully logged in", Toast.LENGTH_SHORT).show();
                     session.setKeyToken(token);
-                    ((MainActivity) requireActivity()).loadFragment(new TableListFragment());
+                    PosSelectionFragment posDialogFragment = new PosSelectionFragment();
+                    posDialogFragment.show(getChildFragmentManager(),"CustomDialog");
+                    //((MainActivity) requireActivity()).loadFragment(new TableListFragment());
                 } catch (JSONException e) {
                     // JSON error
                     Toast.makeText(requireContext(), "Something went wrong. Please try again.", Toast.LENGTH_SHORT).show();
@@ -143,7 +147,7 @@ public class LoginFragment extends Fragment {
                 error.printStackTrace();
                 Log.e(TAG, "Login Error: " + error.getMessage());
                 Toast.makeText(requireContext(),
-                        error.getMessage()==null?"NULL": error.getMessage(), Toast.LENGTH_LONG).show();
+                        error.getMessage()==null?"Please input correct credential": error.getMessage(), Toast.LENGTH_LONG).show();
                 hideDialog();
             }
         }) {

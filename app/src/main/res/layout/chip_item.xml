@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.chip.Chip xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.MaterialComponents.Chip.Entry"
+    android:id="@+id/chip_example"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Material Chip"
+    app:chipIconVisible="false"
+    app:closeIconEnabled="false"
+    android:clickable="true"
+    android:checkable="false"
+    app:closeIconTint="@color/design_default_color_error" />

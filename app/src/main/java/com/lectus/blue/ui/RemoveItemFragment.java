@@ -133,6 +133,11 @@ public class RemoveItemFragment extends DialogFragment {
                     Toast.makeText(requireContext(), "Please input correct number", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                if (removeQuantityVal > Float.parseFloat(mOrderItem.getQuantity()) )
+                {
+                    Toast.makeText(requireContext(), "Quantity to remove must be smaller thank ordered quantity.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
             }catch (Exception e)
             {
                 Toast.makeText(requireContext(), "Please input correct number", Toast.LENGTH_SHORT).show();
@@ -155,7 +160,7 @@ public class RemoveItemFragment extends DialogFragment {
 
             @Override
             public void onResponse(String response) {
-                Log.d(TAG, "Login Response: " + response.toString());
+                Log.d(TAG, "Update Response: " + response.toString());
                 hideDialog();
 
                 try {
@@ -198,6 +203,7 @@ public class RemoveItemFragment extends DialogFragment {
                 params.put("supervisor", "Kitchen");
                 float quantity = Float.parseFloat(mOrderItem.getQuantity())-removeQuantityVal;
                 params.put("quantity", String.valueOf(quantity));
+                params.put("remove_quantity", String.valueOf(removeQuantityVal));
                 return params;
             }
             @Override
@@ -219,7 +225,7 @@ public class RemoveItemFragment extends DialogFragment {
     public void onStart() {
         super.onStart();
         // Disable cancellation of the dialog
-        //setCancelable(false);
+        setCancelable(false);
     }
     private void showDialog() {
         if (!pDialog.isShowing())

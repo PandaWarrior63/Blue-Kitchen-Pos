@@ -37,6 +37,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +84,7 @@ public class TableListFragment extends Fragment implements TableAdapter.OnCardCl
             @Override
             public void onTabSelected(@NonNull TabLayout.Tab tab) {
                 // Handle tab selected event
-                Toast.makeText(requireContext(), "Selected: " + tab.getText(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(requireContext(), "Selected: " + tab.getText(), Toast.LENGTH_SHORT).show();
                 displayTables();
             }
 
@@ -144,7 +145,7 @@ public class TableListFragment extends Fragment implements TableAdapter.OnCardCl
                         // Posting parameters to login url
                         Map<String, String> params = new HashMap<String, String>();
                         //params.put("tag", "login");
-                        params.put("pos_opening_entry", "POS-OPE-2024-00017");
+                        params.put("pos_opening_entry", session.getKeyOpenPos());
 
                         return params;
                     }
@@ -207,8 +208,11 @@ public class TableListFragment extends Fragment implements TableAdapter.OnCardCl
                             table.setDescription(temp+" Order Items");
                             table.setOrderList(orderItems);
                         }
-                        else
+                        else {
+                            table.setOrderList(new ArrayList<>());
+                            table.setDescription("");
                             table.setBackground("#DCDCDC");
+                        }
                     }
                 }
             }
@@ -243,6 +247,7 @@ public class TableListFragment extends Fragment implements TableAdapter.OnCardCl
                         TableItem tableItem = new TableItem(jsonArray.getJSONObject(i));
                         tableList.add(tableItem);
                     }
+                    tableList.sort(Comparator.comparing(TableItem::getTable_number));
                     setupFloors();
                     //Toast.makeText(requireContext(), temp, Toast.LENGTH_LONG).show();
                 } catch (JSONException e) {
@@ -300,7 +305,7 @@ public class TableListFragment extends Fragment implements TableAdapter.OnCardCl
 
     @Override
     public void onCardClick(int position, TableItem cardItem) {
-        Toast.makeText(requireContext(), cardItem.getName(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(requireContext(), cardItem.getName(), Toast.LENGTH_SHORT).show();
         ((MainActivity) requireActivity()).loadFragment(new TableOrderListFragment(cardItem));
     }
 }

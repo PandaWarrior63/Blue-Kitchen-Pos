@@ -47,6 +47,17 @@ public class TableItem {
 
         }
     }
+    public int getTable_number()
+    {
+        try{
+            String numbersOnly = this.getTable_name().replaceAll("[^0-9]", "");
+            return Integer.parseInt(numbersOnly);
+        }catch (Exception e)
+        {
+            return 0;
+        }
+
+    }
     public String getName() {
         return name;
     }

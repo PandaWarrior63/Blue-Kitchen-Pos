@@ -23,6 +23,7 @@ public class SessionManager {
 
     private static final String KEY_IS_LOGGEDIN = "isLoggedIn";
     private static final String KEY_TOKEN = "TOKEN";
+    private static final String KEY_OPEN_POS = "OPEN_POS";
 
     public SessionManager(Context context) {
         this._context = context;
@@ -46,7 +47,7 @@ public class SessionManager {
     public String getKeyToken(){
         return pref.getString(KEY_TOKEN, null);
     }
-
+    public String getKeyOpenPos() {return pref.getString(KEY_OPEN_POS,"");}
     public void setKeyToken(String token)
     {
         editor.putBoolean(KEY_IS_LOGGEDIN, true);
@@ -56,5 +57,12 @@ public class SessionManager {
         editor.commit();
 
         Log.d(TAG, "User Token session modified!");
+    }
+    public void setKeyOpenPos(String entry)
+    {
+        editor.putString(KEY_OPEN_POS, entry);
+        // commit changes
+        editor.commit();
+        Log.d(TAG, "Open Pos Entry modified!");
     }
 }
