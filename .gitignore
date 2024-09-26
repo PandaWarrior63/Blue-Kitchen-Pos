@@ -13,6 +13,7 @@
 /app/build
 /app/release
 /captures
+/dist
 .externalNativeBuild
 .cxx
 local.properties
